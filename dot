@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+warn() { echo "$@" >&2; }
+die() { warn "$@"; exit 1; }
+
+set -o errexit
+
+dot_dir="${HOME}/.dot.git"
+dot_tree="$HOME"
+
+if ! type -f git &>/dev/null; then
+  die 'git not found'
+fi
+
+dot_install() {
+  if [[ -e "$dot_dir" ]]; then
+    die 'already installed'
+  fi
+
+  if ! type -f rsync &>/dev/null; then
+    die 'rsync not found'
+  fi
+
+  repo="$1"
+
+  if [[ -z "$repo" ]]; then
+    die 'repository required'
+  fi
+
+  tmp_dir=$( mktemp -d "${HOME}/dot.XXXXXXXXXX" )
+  tmp_repo="${tmp_dir}/repo"
+
+  git clone "$repo" "$tmp_repo"
+
+  mv "${tmp_repo}/.git" "$dot_dir"
+
+  rsync -avz --backup --backup-dir="$HOME/dot.backup" "$tmp_repo/" "$HOME"
+
+  if [[ -d "$HOME/.ssh" ]]; then
+    find "$HOME/.ssh" -type d -exec chmod 700 {} \;
+    find "$HOME/.ssh" -type f -exec chmod 600 {} \;
+  fi
+}
+
+dot_git() {
+  git --git-dir="$dot_dir/" --work-tree="$dot_tree" "$@"
+}
+
+case "$1" in
+  install)
+    shift ; dot_install "$@" ;;
+  add)
+    shift ; dot_git add -f "$@" ;;
+  *)
+    dot_git "$@" ;;
+esac
