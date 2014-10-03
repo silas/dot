@@ -5,7 +5,7 @@ die() { warn "$@"; exit 1; }
 
 set -o errexit
 
-dot_dir="${HOME}/.dot.git"
+dot_dir="$HOME/.dot.git"
 dot_tree="$HOME"
 
 if ! type -f git &>/dev/null; then
@@ -27,18 +27,22 @@ dot_install() {
     die 'repository required'
   fi
 
-  tmp_dir=$( mktemp -d "${HOME}/dot.XXXXXXXXXX" )
-  tmp_repo="${tmp_dir}/repo"
+  tmp_dir=$( mktemp -d "$HOME/dot.XXXXXXXXXX" )
+  tmp_repo="$tmp_dir/repo"
 
   git clone "$repo" "$tmp_repo"
 
-  mv "${tmp_repo}/.git" "$dot_dir"
+  mv "$tmp_repo/.git" "$dot_dir"
 
   rsync -avz --backup --backup-dir="$HOME/dot.backup" "$tmp_repo/" "$HOME"
 
-  if [[ -d "$HOME/.ssh" ]]; then
-    find "$HOME/.ssh" -type d -exec chmod 700 {} \;
-    find "$HOME/.ssh" -type f -exec chmod 600 {} \;
+  rm -fr "$tmp_dir"
+
+  ssh_dir="$HOME/.ssh"
+
+  if [[ -d "$ssh_dir" ]]; then
+    find "$ssh_dir" -type d -exec chmod 700 {} \;
+    find "$ssh_dir" -type f -exec chmod 600 {} \;
   fi
 }
 
