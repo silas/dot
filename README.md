@@ -6,9 +6,9 @@ Another dotfile manager.
 
 You should install `dot` into your `PATH`.
 
-```
-eval "dot() { $(curl -fsSL https://github.com/silas/dot/raw/master/dot) ; }"
-dot install https://github.com/${USER}/dotfiles
+``` console
+$ eval "dot() { $(curl -fsSL https://github.com/silas/dot/raw/master/dot) ; }"
+$ dot install "https://github.com/${USER}/dotfiles"
 ```
 
 ## License
