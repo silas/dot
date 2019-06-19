@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
-warn() { echo "$@" >&2; }
-die() { warn "$@"; exit 1; }
+die() { echo "$@" >&2; exit 1; }
 
-set -o errexit
+set -e
 
 dot_dir="$HOME/.dot.git"
 dot_tree="$HOME"
